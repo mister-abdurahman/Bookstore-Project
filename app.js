@@ -5,6 +5,8 @@ const connectToDB = require("./db/mongodb");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const logger = require("./logger/logger");
+const { requiresAuth } = require("express-openid-connect");
+const authOMiddleware = require("./auth/auth0");
 
 // Routers
 const bookRouter = require("./routes/books.route");
@@ -19,6 +21,9 @@ connectToDB();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// AuthO
+app.use(authOMiddleware);
+
 // Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -31,10 +36,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Security middleware
-app.use(helmet);
+app.use(helmet());
 
-app.use("/api/v1/books", bookRouter);
-app.use("/api/v1/authors", authorRouter);
+app.use("/api/v1/books", requiresAuth(), bookRouter);
+app.use("/api/v1/authors", requiresAuth(), authorRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello Bookstore");
