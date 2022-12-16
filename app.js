@@ -58,3 +58,5 @@ app.use((err, req, res, next) => {
 app.listen(CONFIG.PORT, () => {
   logger.info(`Server started on http://localhost:${CONFIG.PORT}`);
 });
+
+// Configure authO to use access tokens, (so we can make requets from postman too)
