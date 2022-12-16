@@ -1,10 +1,6 @@
-const express = require('express')
-const {addBookValidationMW, updateBookValidationMW} = require('../validators/book.validator')
 const bookModel = require('../models/books')
 
-const bookRouter = express.Router()
-
-bookRouter.get('/', (req, res) => {
+function getAllBooks(req, res){
     bookModel.find()
         .then(books => {
             res.send(books)
@@ -13,9 +9,9 @@ bookRouter.get('/', (req, res) => {
             console.log(err)
             res.send(err)
         })
-})
+}
 
-bookRouter.get('/:id', (req, res) => {
+function getBookByID(req, res){
     const id = req.params.id
     bookModel.findById(id)
         .then(book => {
@@ -24,9 +20,9 @@ bookRouter.get('/:id', (req, res) => {
             console.log(err)
             res.status(404).send(err)
         })
-})
+}
 
-bookRouter.post('/', addBookValidationMW ,(req, res) => {
+function addBook(req, res){
     const book = req.body
     book.lastUpdateAt = new Date() // set the lastUpdateAt to the current date
     bookModel.create(book)
@@ -36,9 +32,9 @@ bookRouter.post('/', addBookValidationMW ,(req, res) => {
             console.log(err)
             res.status(500).send(err)
         })
-})
+}
 
-bookRouter.put('/:id', updateBookValidationMW, (req, res) => {
+function updateBookByID(req, res){
     const id = req.params.id
     const book = req.body
     book.lastUpdateAt = new Date() // set the lastUpdateAt to the current date
@@ -49,9 +45,9 @@ bookRouter.put('/:id', updateBookValidationMW, (req, res) => {
             console.log(err)
             res.status(500).send(err)
         })
-})
+}
 
-bookRouter.delete('/:id', (req, res) => {
+function deleteBook(req, res){
     const id = req.params.id
     bookModel.findByIdAndRemove(id)
         .then(book => {
@@ -60,9 +56,12 @@ bookRouter.delete('/:id', (req, res) => {
             console.log(err)
             res.status(500).send(err)
         })
-})
+}
 
-
-module.exports = bookRouter
-
-
+module.exports = {
+    getAllBooks,
+    addBook,
+    getBookByID,
+    updateBookByID,
+    deleteBook
+}
