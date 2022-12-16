@@ -1,21 +1,19 @@
-const mongoose = require('mongoose')
-const CONFIG = require('../config/config')
+const mongoose = require("mongoose");
+const CONFIG = require("../config/config");
+const logger = require("../logger/logger");
 
+function connectToDB() {
+  mongoose.set("strictQuery", false);
 
-function connectToDB(){
-    mongoose.set('strictQuery', false);
-    
-    mongoose.connect(CONFIG.MONGODB_URL)
+  mongoose.connect(CONFIG.MONGODB_URL);
 
+  mongoose.connection.on("connected", () => {
+    logger.info("mongodb connected succesfully");
+  });
 
-    mongoose.connection.on("connected", () => {
-        console.log('mongodb connected succesfully')
-    })  
-
-    mongoose.connection.on("error", (err) => {
-        console.log('An error occured')
-        console.log(err)
-    })
+  mongoose.connection.on("error", (err) => {
+    logger.info(err);
+  });
 }
 
-module.exports = connectToDB
+module.exports = connectToDB;

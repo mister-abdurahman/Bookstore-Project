@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const CONFIG = require("./config/config");
 const connectToDB = require("./db/mongodb");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const logger = require("./logger/logger");
 
 // Routers
 const bookRouter = require("./routes/books.route");
@@ -16,6 +19,20 @@ connectToDB();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
+
+// Security middleware
+app.use(helmet);
+
 app.use("/api/v1/books", bookRouter);
 app.use("/api/v1/authors", authorRouter);
 
@@ -25,7 +42,7 @@ app.get("/", (req, res) => {
 
 // Error handler midddleware
 app.use((err, req, res, next) => {
-  console.log(err);
+  logger.error(err.message);
 
   const errorStatus = err.status || 500;
 
@@ -34,5 +51,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(CONFIG.PORT, () => {
-  console.log(`Server started on http://localhost:${CONFIG.PORT}`);
+  logger.info(`Server started on http://localhost:${CONFIG.PORT}`);
 });
