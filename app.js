@@ -11,6 +11,7 @@ const authOMiddleware = require("./auth/auth0");
 // Routers
 const bookRouter = require("./routes/books.route");
 const authorRouter = require("./routes/authors.route");
+const authTokenRouter = require("./routes/authToken.route");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use(helmet());
 
 app.use("/api/v1/books", requiresAuth(), bookRouter);
 app.use("/api/v1/authors", requiresAuth(), authorRouter);
+app.use("/api/v1/auth", authTokenRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello Bookstore");
@@ -59,4 +61,4 @@ app.listen(CONFIG.PORT, () => {
   logger.info(`Server started on http://localhost:${CONFIG.PORT}`);
 });
 
-// Configure authO to use access tokens, (so we can make requets from postman too)
+// Configure authO to use access tokens, (so we can make requests from postman too). ✔
